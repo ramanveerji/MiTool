@@ -31,9 +31,8 @@ while True:
     print(status)
     if status == "sideload":
         break
-    else:
-        input("\nplease Verify that device is in sideload mode ! If so, check that it is connected via otg ! then press Enter\n")
-        continue
+    input("\nplease Verify that device is in sideload mode ! If so, check that it is connected via otg ! then press Enter\n")
+    continue
 
 os.system(f"adb sideload {download_path}/*.zip")
 
