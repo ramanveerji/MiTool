@@ -7,7 +7,9 @@ ROM_FOLDER = "/sdcard/Download/mi-flash-recovery-rom"
 if not os.path.exists(ROM_FOLDER):
     os.makedirs(ROM_FOLDER)
 
-input("Please make sure to place the ROM file in the {} folder .. Then press Enter".format(ROM_FOLDER))
+input(
+    f"Please make sure to place the ROM file in the {ROM_FOLDER} folder .. Then press Enter"
+)
 
 rom_files = [f for f in os.listdir(ROM_FOLDER) if f.endswith(".zip")]
 
@@ -22,8 +24,7 @@ while True:
     print(status)
     if status == "sideload":
         break
-    else:
-        input("\nplease Verify that device is in sideload mode ! If so, check that it is connected via otg ! then press Enter\n")
-        continue
+    input("\nplease Verify that device is in sideload mode ! If so, check that it is connected via otg ! then press Enter\n")
+    continue
 
-os.system("adb sideload {}/{}".format(ROM_FOLDER, rom_files[0]))
+os.system(f"adb sideload {ROM_FOLDER}/{rom_files[0]}")

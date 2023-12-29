@@ -64,10 +64,11 @@ with open(filename, "a+") as file:
 
 if "wb_value:" not in open(filename).read():
     input(f"\nPress Enter to open confirmation page in your default browser. After seeing {{\"R\":\"\",\"S\":\"OK\"}}, copy Link from address bar. Come back here")
-    os.system(f"termux-open-url 'https://account.xiaomi.com/pass/serviceLogin?sid=unlockApi&checkSafeAddress=true'")
+    os.system(
+        "termux-open-url 'https://account.xiaomi.com/pass/serviceLogin?sid=unlockApi&checkSafeAddress=true'"
+    )
     wbinput = input("\nEnter Link: ")
-    wbinputmatch = wbinput.split('sts?d=')[1].split('&ticket')[0]
-    if wbinputmatch:
+    if wbinputmatch := wbinput.split('sts?d=')[1].split('&ticket')[0]:
         wbvalue = wbinputmatch.group(0).split('=')[1]
         with open(filename, "a") as file:
             file.write(f"\nwb_value: {wbvalue}\n")
@@ -116,7 +117,19 @@ data = json.loads(result2)
 
 ssecurity, psecurity, userid, c_userid, code, nonce, location = (data["ssecurity"], data["psecurity"], data["userId"], data["cUserId"], data["code"], data["nonce"], data["location"])
 
-response_cookies = session.get( location + "&clientSign=" + urllib.parse.quote_plus(b64encode(hashlib.sha1(f"nonce={nonce}".encode("utf-8") + b"&" + ssecurity.encode("utf-8")).digest())), headers=headers ).cookies
+response_cookies = session.get(
+    f"{location}&clientSign="
+    + urllib.parse.quote_plus(
+        b64encode(
+            hashlib.sha1(
+                f"nonce={nonce}".encode("utf-8")
+                + b"&"
+                + ssecurity.encode("utf-8")
+            ).digest()
+        )
+    ),
+    headers=headers,
+).cookies
 
 cookies = response_cookies
 
@@ -124,9 +137,6 @@ if not cookies:
     error_message = f'\n\033[91mdescEN: Error information not obtained from server.\nInvalid wb_value: {wbvalueline}\n\033[0m\033[92m'
     print(error_message)
     exit()
-else:
-    pass
-
 params = {k.encode("utf-8") if isinstance(k, str) else k: v.encode("utf-8") if isinstance(v, str) else b64encode(json.dumps(v).encode("utf-8")) if not isinstance(v, bytes) else v for k, v in {"appId": "1", "data": {"clientId": "2", "clientVersion": "5.5.224.55", "language": "en", "operate": "unlock", "pcId": hashlib.md5(wbvalueline.encode("utf-8")).hexdigest(), "product": productname, "deviceInfo": {"product": productname}, "deviceToken": tokenname}
 }.items()}
 
@@ -152,8 +162,13 @@ def add_nonce():
     params[b"nonce"], params[b"sid"] = r["nonce"].encode("utf-8"), b"miui_unlocktool_client"
 
 def _decrypt(value):
-    ret = b64decode((lambda s: s[:-s[-1]])(AES.new(b64decode(ssecurity), AES.MODE_CBC, b"0102030405060708").decrypt(b64decode(value))))
-    return ret
+    return b64decode(
+        (lambda s: s[: -s[-1]])(
+            AES.new(
+                b64decode(ssecurity), AES.MODE_CBC, b"0102030405060708"
+            ).decrypt(b64decode(value))
+        )
+    )
 
 def run():
     add_sign()
